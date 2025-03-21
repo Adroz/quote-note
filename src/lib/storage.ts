@@ -117,4 +117,16 @@ export const deleteQuote = (store: QuoteStore, id: string): QuoteStore => {
   
   saveToStorage(updatedStore);
   return updatedStore;
+};
+
+// Function to clear all locally stored quotes
+export const clearLocalStorage = (): void => {
+  if (typeof window === "undefined") return;
+  
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    console.log("Local storage quotes cleared");
+  } catch (error) {
+    console.error("Error clearing local storage:", error);
+  }
 }; 

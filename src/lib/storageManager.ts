@@ -150,4 +150,67 @@ export const getRandomQuote = async (store: QuoteStore, currentQuoteId?: string 
     // Not authenticated, use local storage
     return LocalStorage.getRandomQuote(store, currentQuoteId);
   }
+};
+
+// Function to transfer local quotes to Firestore
+export const transferLocalQuotesToCloud = async (): Promise<boolean> => {
+  if (!isAuthenticated()) {
+    console.error('User not authenticated, cannot transfer quotes');
+    return false;
+  }
+  
+  try {
+    // Get local quotes
+    const localStore = LocalStorage.getInitialStore();
+    
+    if (localStore.quotes.length === 0) {
+      // No local quotes to transfer
+      return false;
+    }
+    
+    // Get current Firestore quotes for comparison
+    const firestoreStore = await FirestoreStorage.getFirestoreStore();
+    
+    // Map to track quotes we've already transferred
+    const existingQuoteTexts = new Set(firestoreStore.quotes.map(q => q.text.trim().toLowerCase()));
+    
+    // Find quotes that need to be transferred (don't exist in Firestore yet)
+    const quotesToTransfer = localStore.quotes.filter(q => 
+      !existingQuoteTexts.has(q.text.trim().toLowerCase())
+    );
+    
+    if (quotesToTransfer.length === 0) {
+      // All quotes already exist in cloud
+      return false;
+    }
+    
+    // Transfer each quote
+    for (const quote of quotesToTransfer) {
+      await FirestoreStorage.addQuoteToFirestore({
+        text: quote.text,
+        author: quote.author, // Firestore function will handle null conversion
+        tags: quote.tags
+      });
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error transferring quotes to cloud:', error);
+    return false;
+  }
+};
+
+// Check if there are local quotes
+export const hasLocalQuotes = (): boolean => {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  
+  try {
+    const localStore = LocalStorage.getInitialStore();
+    return localStore.quotes.length > 0;
+  } catch (error) {
+    console.error('Error checking for local quotes:', error);
+    return false;
+  }
 }; 

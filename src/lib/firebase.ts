@@ -1,48 +1,50 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider, Auth } from 'firebase/auth';
 
-// Helper to get config from environment or localStorage
-const getConfigValue = (key: string): string | undefined => {
-  // Try to get from environment first
-  const envValue = process.env[`NEXT_PUBLIC_FIREBASE_${key}`];
-  if (envValue) return envValue;
-  
-  // If not in environment, try localStorage (used in development)
-  if (typeof window !== 'undefined') {
-    const localValue = localStorage.getItem(`NEXT_PUBLIC_FIREBASE_${key}`);
-    if (localValue) return localValue;
-  }
-  
-  return undefined;
-};
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Firebase configuration
 const firebaseConfig = {
-  apiKey: getConfigValue('API_KEY'),
-  authDomain: getConfigValue('AUTH_DOMAIN'),
-  projectId: getConfigValue('PROJECT_ID'),
-  storageBucket: getConfigValue('STORAGE_BUCKET'),
-  messagingSenderId: getConfigValue('MESSAGING_SENDER_ID'),
-  appId: getConfigValue('APP_ID'),
-  measurementId: getConfigValue('MEASUREMENT_ID')
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase only if config is available
-let db: Firestore | null = null;
-let auth: Auth | null = null;
-let googleProvider: GoogleAuthProvider | null = null;
+// Initialize Firebase
+let app: FirebaseApp;
+let db: Firestore;
+let auth: Auth;
+let googleProvider: GoogleAuthProvider;
 
-if (firebaseConfig.apiKey) {
-  try {
-    const app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
-    auth = getAuth(app);
-    googleProvider = new GoogleAuthProvider();
-  } catch (error) {
-    console.error("Firebase initialization error:", error);
+// Check if all required config values are present
+const isConfigValid = 
+  firebaseConfig.apiKey && 
+  firebaseConfig.authDomain && 
+  firebaseConfig.projectId;
+
+if (!isConfigValid) {
+  console.warn('Firebase config is incomplete. Check your .env.local file with the required Firebase configuration values.');
+}
+
+try {
+  // Check if Firebase has already been initialized
+  if (getApps().length === 0) {
+    app = initializeApp(firebaseConfig);
+    console.log('Firebase initialized successfully');
+  } else {
+    app = getApps()[0];
   }
+  
+  db = getFirestore(app);
+  auth = getAuth(app);
+  googleProvider = new GoogleAuthProvider();
+  
+} catch (error) {
+  console.error("Firebase initialization error:", error);
+  throw new Error("Failed to initialize Firebase. Please check your configuration.");
 }
 
 export { db, auth, googleProvider }; 

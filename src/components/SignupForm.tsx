@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { hasLocalQuotes } from '@/lib/storageManager';
+import { MigrationPrompt } from './MigrationPrompt';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 // Define a type for Firebase errors
@@ -17,7 +20,24 @@ export const SignupForm = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const { signUp, signInWithGoogle } = useAuth();
+  const [showMigration, setShowMigration] = useState(false);
+  const { signUp, signInWithGoogle, currentUser } = useAuth();
+  const router = useRouter();
+
+  // Check if there are local quotes when user successfully signs up
+  useEffect(() => {
+    if (currentUser) {
+      if (hasLocalQuotes()) {
+        setShowMigration(true);
+      } else if (success) {
+        // If no quotes to migrate and signup is successful, redirect after a delay
+        const timer = setTimeout(() => {
+          router.push('/');
+        }, 2000); // Short delay to show success message
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [currentUser, success, router]);
 
   const validatePassword = () => {
     if (password.length < 6) {
@@ -41,6 +61,7 @@ export const SignupForm = () => {
       setLoading(true);
       await signUp(email, password);
       setSuccess(true);
+      // Authentication state change will trigger the useEffect above
     } catch (err: unknown) {
       const firebaseError = err as FirebaseError;
       setError('Failed to create account: ' + (firebaseError.message || 'Unknown error'));
@@ -56,6 +77,7 @@ export const SignupForm = () => {
       setLoading(true);
       await signInWithGoogle();
       setSuccess(true);
+      // Authentication state change will trigger the useEffect above
     } catch (err: unknown) {
       const firebaseError = err as FirebaseError;
       setError('Failed to sign up with Google: ' + (firebaseError.message || 'Unknown error'));
@@ -65,21 +87,32 @@ export const SignupForm = () => {
     }
   };
 
+  const handleMigrationComplete = () => {
+    setShowMigration(false);
+    // Redirect to home page after migration is complete
+    router.push('/');
+  };
+
   if (success) {
     return (
-      <div className="max-w-md w-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Account Created!</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Your account has been successfully created.
-          </p>
-          <Link href="/">
-            <span className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+      <>
+        <div className="max-w-md w-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Account Created!</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Your account has been successfully created.
+            </p>
+            <button
+              onClick={() => router.push('/')}
+              className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            >
               Go to Home
-            </span>
-          </Link>
+            </button>
+          </div>
         </div>
-      </div>
+        
+        {showMigration && <MigrationPrompt onComplete={handleMigrationComplete} />}
+      </>
     );
   }
 

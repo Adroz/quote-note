@@ -93,8 +93,11 @@ export const addQuoteToFirestore = async (quote: Omit<Quote, "id" | "createdAt">
       return null;
     }
     
+    // Prepare the quote data for Firestore - ensure undefined values are converted to null
     const quoteData = {
-      ...quote,
+      text: quote.text,
+      author: quote.author || null, // Convert undefined author to null for Firestore
+      tags: quote.tags || [],
       userId, // Associate quote with current user
       createdAt: Timestamp.now()
     };
