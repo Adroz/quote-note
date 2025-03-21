@@ -10,4 +10,4 @@ const nextConfig = {
   // assetPrefix: process.env.NODE_ENV === 'production' ? '/quote-note/' : '',
 };
 
-export default nextConfig; 
+module.exports = nextConfig; 
