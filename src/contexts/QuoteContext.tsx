@@ -1,8 +1,9 @@
 "use client";
 
 import { Quote, QuoteStore } from "@/types";
-import { addQuote, deleteQuote, getInitialStore, updateQuote, getRandomQuote } from "@/lib/storage";
+import * as StorageManager from "@/lib/storageManager";
 import { createContext, useContext, ReactNode, useState, useEffect } from "react";
+import { useAuth } from "./AuthContext";
 
 interface QuoteContextType {
   store: QuoteStore;
@@ -12,6 +13,7 @@ interface QuoteContextType {
   deleteQuote: (id: string) => void;
   refreshRandomQuote: () => void;
   setCurrentQuote: (id: string) => void;
+  isLoading: boolean;
 }
 
 const QuoteContext = createContext<QuoteContextType | undefined>(undefined);
@@ -20,18 +22,35 @@ export const QuoteProvider = ({ children }: { children: ReactNode }) => {
   const [store, setStore] = useState<QuoteStore>({ quotes: [], tags: [] });
   const [randomQuote, setRandomQuote] = useState<Quote | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { currentUser } = useAuth(); // Get current auth state
 
-  // Load initial data from localStorage
+  // Load initial data
   useEffect(() => {
-    const initialStore = getInitialStore();
-    setStore(initialStore);
-    getRandomQuoteFromStore(initialStore);
-    setIsLoaded(true);
-  }, []);
+    const loadInitialData = async () => {
+      setIsLoading(true);
+      try {
+        const initialStore = await StorageManager.getInitialStore();
+        setStore(initialStore);
+        await getRandomQuoteFromStore(initialStore);
+        setIsLoaded(true);
+      } catch (error) {
+        console.error("Error loading initial data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadInitialData();
+  }, [currentUser]); // Reload when auth state changes
 
-  const getRandomQuoteFromStore = (storeData: QuoteStore, currentQuoteId?: string | null) => {
-    const randomQuoteItem = getRandomQuote(storeData, currentQuoteId);
-    setRandomQuote(randomQuoteItem);
+  const getRandomQuoteFromStore = async (storeData: QuoteStore, currentQuoteId?: string | null) => {
+    try {
+      const randomQuoteItem = await StorageManager.getRandomQuote(storeData, currentQuoteId);
+      setRandomQuote(randomQuoteItem);
+    } catch (error) {
+      console.error("Error getting random quote:", error);
+    }
   };
 
   // Function to set specific quote as the current quote
@@ -42,50 +61,73 @@ export const QuoteProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const refreshRandomQuote = () => {
+  const refreshRandomQuote = async () => {
     // Pass the current quote ID to avoid showing the same quote again
     const currentId = randomQuote ? randomQuote.id : null;
-    getRandomQuoteFromStore(store, currentId);
+    await getRandomQuoteFromStore(store, currentId);
   };
 
-  const handleAddQuote = (quote: Omit<Quote, "id" | "createdAt">) => {
-    const updatedStore = addQuote(store, quote);
-    setStore(updatedStore);
-    
-    // Find the newly added quote (it will be the last one)
-    const newQuote = updatedStore.quotes[updatedStore.quotes.length - 1];
-    
-    // Set it as the current quote to display
-    setRandomQuote(newQuote);
-  };
-
-  const handleUpdateQuote = (id: string, quote: Omit<Quote, "id" | "createdAt">) => {
-    const updatedStore = updateQuote(store, id, quote);
-    setStore(updatedStore);
-    
-    // Find the updated quote and set it as the current quote
-    const updatedQuote = updatedStore.quotes.find(q => q.id === id);
-    if (updatedQuote) {
-      setRandomQuote(updatedQuote);
+  const handleAddQuote = async (quote: Omit<Quote, "id" | "createdAt">) => {
+    setIsLoading(true);
+    try {
+      const updatedStore = await StorageManager.addQuote(store, quote);
+      setStore(updatedStore);
+      
+      // Find the newly added quote (it will be the last one)
+      const newQuote = updatedStore.quotes[updatedStore.quotes.length - 1];
+      
+      // Set it as the current quote to display
+      if (newQuote) {
+        setRandomQuote(newQuote);
+      }
+    } catch (error) {
+      console.error("Error adding quote:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleDeleteQuote = (id: string) => {
-    const updatedStore = deleteQuote(store, id);
-    setStore(updatedStore);
-    
-    // If the deleted quote is the current random quote, get a new one
-    if (randomQuote && randomQuote.id === id) {
-      if (updatedStore.quotes.length > 0) {
-        getRandomQuoteFromStore(updatedStore);
-      } else {
-        setRandomQuote(null);
+  const handleUpdateQuote = async (id: string, quote: Omit<Quote, "id" | "createdAt">) => {
+    setIsLoading(true);
+    try {
+      const updatedStore = await StorageManager.updateQuote(store, id, quote);
+      setStore(updatedStore);
+      
+      // Find the updated quote and set it as the current quote
+      const updatedQuote = updatedStore.quotes.find(q => q.id === id);
+      if (updatedQuote) {
+        setRandomQuote(updatedQuote);
       }
+    } catch (error) {
+      console.error("Error updating quote:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteQuote = async (id: string) => {
+    setIsLoading(true);
+    try {
+      const updatedStore = await StorageManager.deleteQuote(store, id);
+      setStore(updatedStore);
+      
+      // If the deleted quote is the current random quote, get a new one
+      if (randomQuote && randomQuote.id === id) {
+        if (updatedStore.quotes.length > 0) {
+          await getRandomQuoteFromStore(updatedStore);
+        } else {
+          setRandomQuote(null);
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting quote:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   if (!isLoaded) {
-    return null; // Don't render until data is loaded from localStorage
+    return null; // Don't render until data is loaded
   }
 
   return (
@@ -97,7 +139,8 @@ export const QuoteProvider = ({ children }: { children: ReactNode }) => {
         updateQuote: handleUpdateQuote,
         deleteQuote: handleDeleteQuote,
         refreshRandomQuote,
-        setCurrentQuote
+        setCurrentQuote,
+        isLoading
       }}
     >
       {children}

@@ -5,9 +5,10 @@ import { useEffect, useRef } from "react";
 import { useQuotes } from "@/contexts/QuoteContext";
 import { QuoteCard } from "@/components/QuoteCard";
 import { AddQuoteForm } from "@/components/AddQuoteForm";
+import { UserProfile } from "@/components/UserProfile";
 
 export default function Home() {
-  const { randomQuote, refreshRandomQuote } = useQuotes();
+  const { randomQuote, refreshRandomQuote, isLoading } = useQuotes();
   // Use this ref to detect when the page is loaded/refreshed
   const isFirstRender = useRef(true);
 
@@ -28,19 +29,26 @@ export default function Home() {
           <h1 className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
             QuoteNote
           </h1>
-          <nav>
-            <Link 
-              href="/all" 
-              className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
-            >
-              View All Quotes
-            </Link>
-          </nav>
+          <div className="flex items-center">
+            <nav className="flex items-center space-x-4">
+              <Link 
+                href="/all" 
+                className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
+              >
+                View All Quotes
+              </Link>
+              <UserProfile />
+            </nav>
+          </div>
         </div>
       </header>
 
       <div className="flex-1 flex flex-col items-center justify-center p-4">
-        {randomQuote ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center h-40">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+          </div>
+        ) : randomQuote ? (
           <>
             <QuoteCard quote={randomQuote} />
             <button
