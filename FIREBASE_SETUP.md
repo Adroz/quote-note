@@ -39,14 +39,22 @@ This guide will walk you through setting up a Firebase project for the QuoteNote
 4. Select a location closest to your users (default is usually fine)
 5. Click "Enable"
 6. Once the database is created, go to the "Rules" tab
-7. Update the security rules to allow authenticated users to read/write their own data:
+7. Update the security rules to allow users to read/write only their own data:
    ```
    rules_version = '2';
    service cloud.firestore {
      match /databases/{database}/documents {
-       match /quotes/{document} {
-         allow read: if request.auth != null;
-         allow write: if request.auth != null;
+       match /quotes/{quoteId} {
+         // Only allow reading documents where the userId matches the authenticated user's ID
+         allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+         
+         // Only allow creating documents if they have the correct userId field
+         allow create: if request.auth != null && 
+                       request.resource.data.userId == request.auth.uid;
+         
+         // Only allow updating/deleting documents that belong to the user
+         allow update, delete: if request.auth != null && 
+                               resource.data.userId == request.auth.uid;
        }
      }
    }

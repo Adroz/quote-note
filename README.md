@@ -18,6 +18,9 @@ A simple, elegant web application for saving and discovering quotes.
 - ✅ Local storage for anonymous users
 - ✅ Firebase cloud storage for authenticated users
 - ✅ User authentication with email/password and Google
+- ✅ Local-to-cloud data migration prompt on sign-in
+- ✅ Secure authentication flow with redirects
+- ✅ Privacy-focused with local data clearing on logout
 
 ## Technology Stack
 
@@ -57,6 +60,13 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ### User Experience
 - **Context-Aware UI**: Edit and delete buttons only appear on hover (desktop) for a cleaner interface
 - **Instant Feedback**: When you add or edit a quote, it's immediately displayed
+- **Intuitive Navigation**: Clickable elements for easy movement between views
+
+### Authentication & Data Handling
+- **Seamless Migration**: Prompt to transfer local quotes to the cloud when signing in
+- **Smart Redirects**: Authenticated users are redirected from login/signup pages
+- **Privacy Protection**: Local storage is cleared on logout for better privacy
+- **Dual Storage**: Anonymous mode uses local storage, authenticated users get cloud storage
 
 ### Storage Options
 - **Local Storage**: For anonymous users, quotes are stored in your browser's local storage
