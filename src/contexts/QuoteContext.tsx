@@ -11,6 +11,7 @@ interface QuoteContextType {
   updateQuote: (id: string, quote: Omit<Quote, "id" | "createdAt">) => void;
   deleteQuote: (id: string) => void;
   refreshRandomQuote: () => void;
+  setCurrentQuote: (id: string) => void;
 }
 
 const QuoteContext = createContext<QuoteContextType | undefined>(undefined);
@@ -33,6 +34,14 @@ export const QuoteProvider = ({ children }: { children: ReactNode }) => {
     setRandomQuote(randomQuoteItem);
   };
 
+  // Function to set specific quote as the current quote
+  const setCurrentQuote = (id: string) => {
+    const quote = store.quotes.find(q => q.id === id);
+    if (quote) {
+      setRandomQuote(quote);
+    }
+  };
+
   const refreshRandomQuote = () => {
     // Pass the current quote ID to avoid showing the same quote again
     const currentId = randomQuote ? randomQuote.id : null;
@@ -43,22 +52,21 @@ export const QuoteProvider = ({ children }: { children: ReactNode }) => {
     const updatedStore = addQuote(store, quote);
     setStore(updatedStore);
     
-    // If this is the first quote, set it as random quote
-    if (store.quotes.length === 0) {
-      setRandomQuote(updatedStore.quotes[0]);
-    }
+    // Find the newly added quote (it will be the last one)
+    const newQuote = updatedStore.quotes[updatedStore.quotes.length - 1];
+    
+    // Set it as the current quote to display
+    setRandomQuote(newQuote);
   };
 
   const handleUpdateQuote = (id: string, quote: Omit<Quote, "id" | "createdAt">) => {
     const updatedStore = updateQuote(store, id, quote);
     setStore(updatedStore);
     
-    // If the updated quote is the current random quote, update it
-    if (randomQuote && randomQuote.id === id) {
-      const updatedQuote = updatedStore.quotes.find(q => q.id === id);
-      if (updatedQuote) {
-        setRandomQuote(updatedQuote);
-      }
+    // Find the updated quote and set it as the current quote
+    const updatedQuote = updatedStore.quotes.find(q => q.id === id);
+    if (updatedQuote) {
+      setRandomQuote(updatedQuote);
     }
   };
 
@@ -88,7 +96,8 @@ export const QuoteProvider = ({ children }: { children: ReactNode }) => {
         addQuote: handleAddQuote,
         updateQuote: handleUpdateQuote,
         deleteQuote: handleDeleteQuote,
-        refreshRandomQuote
+        refreshRandomQuote,
+        setCurrentQuote
       }}
     >
       {children}
