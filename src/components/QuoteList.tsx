@@ -1,12 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuotes } from "@/contexts/QuoteContext";
 import { QuoteCard } from "./QuoteCard";
+import { useSearchParams } from "next/navigation";
 
 export const QuoteList = () => {
   const { store } = useQuotes();
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  
+  // Check for tag in URL query params when component mounts
+  useEffect(() => {
+    const tagParam = searchParams.get('tag');
+    if (tagParam) {
+      setSelectedTag(tagParam);
+    }
+  }, [searchParams]);
   
   const filteredQuotes = selectedTag 
     ? store.quotes.filter(quote => quote.tags.includes(selectedTag))
@@ -17,7 +27,9 @@ export const QuoteList = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-white">All Quotes</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-white">
+        {selectedTag ? `Quotes tagged with "${selectedTag}"` : "All Quotes"}
+      </h1>
       
       {store.tags.length > 0 && (
         <div className="mb-6">

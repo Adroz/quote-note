@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Quote } from "@/types";
 import { EditQuoteForm } from "./EditQuoteForm";
 import { useQuotes } from "@/contexts/QuoteContext";
+import Link from "next/link";
 
 interface QuoteCardProps {
   quote: Quote;
@@ -38,12 +39,16 @@ export const QuoteCard = ({ quote }: QuoteCardProps) => {
         <div className="mt-4 flex flex-wrap items-center justify-between">
           <div className="flex flex-wrap gap-2">
             {quote.tags.length > 0 && quote.tags.map(tag => (
-              <span 
-                key={tag} 
-                className="px-2 py-1 text-xs bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-full"
+              <Link 
+                key={tag}
+                href={`/all?tag=${encodeURIComponent(tag)}`}
               >
-                {tag}
-              </span>
+                <span 
+                  className="px-2 py-1 text-xs bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors cursor-pointer"
+                >
+                  {tag}
+                </span>
+              </Link>
             ))}
           </div>
           
