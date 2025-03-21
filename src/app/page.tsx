@@ -1,12 +1,25 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState, useRef } from "react";
 import { useQuotes } from "@/contexts/QuoteContext";
 import { QuoteCard } from "@/components/QuoteCard";
 import { AddQuoteForm } from "@/components/AddQuoteForm";
 
 export default function Home() {
   const { randomQuote, refreshRandomQuote } = useQuotes();
+  // Use this ref to detect when the page is loaded/refreshed
+  const isFirstRender = useRef(true);
+
+  // Only refresh the quote on actual page refresh, not on every render
+  useEffect(() => {
+    // Only run this effect on first render (page load/refresh)
+    if (isFirstRender.current) {
+      refreshRandomQuote();
+      isFirstRender.current = false;
+    }
+    // No dependencies means this only runs once on mount
+  }, []);
 
   return (
     <main className="min-h-screen flex flex-col">

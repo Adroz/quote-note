@@ -47,10 +47,26 @@ export const addQuote = (store: QuoteStore, quote: Omit<Quote, "id" | "createdAt
   return updatedStore;
 };
 
-export const getRandomQuote = (store: QuoteStore): Quote | null => {
+export const getRandomQuote = (store: QuoteStore, currentQuoteId?: string | null): Quote | null => {
+  // If there are no quotes, return null
   if (!store.quotes.length) return null;
-  const randomIndex = Math.floor(Math.random() * store.quotes.length);
-  return store.quotes[randomIndex];
+  
+  // If there's only one quote, return it regardless
+  if (store.quotes.length === 1) return store.quotes[0];
+  
+  // Filter out the current quote if it exists
+  const availableQuotes = currentQuoteId 
+    ? store.quotes.filter(quote => quote.id !== currentQuoteId)
+    : store.quotes;
+  
+  // If somehow all quotes were filtered out (shouldn't happen), use all quotes
+  const quotesToSelectFrom = availableQuotes.length > 0 ? availableQuotes : store.quotes;
+  
+  // Use a more robust random method
+  const seed = Date.now();
+  const randomIndex = Math.floor((Math.random() * seed) % quotesToSelectFrom.length);
+  
+  return quotesToSelectFrom[randomIndex];
 };
 
 export const updateQuote = (store: QuoteStore, id: string, updatedQuote: Omit<Quote, "id" | "createdAt">): QuoteStore => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { Quote, QuoteStore } from "@/types";
-import { addQuote, deleteQuote, getInitialStore, updateQuote } from "@/lib/storage";
+import { addQuote, deleteQuote, getInitialStore, updateQuote, getRandomQuote } from "@/lib/storage";
 import { createContext, useContext, ReactNode, useState, useEffect } from "react";
 
 interface QuoteContextType {
@@ -28,18 +28,15 @@ export const QuoteProvider = ({ children }: { children: ReactNode }) => {
     setIsLoaded(true);
   }, []);
 
-  const getRandomQuoteFromStore = (storeData: QuoteStore) => {
-    if (storeData.quotes.length === 0) {
-      setRandomQuote(null);
-      return;
-    }
-    
-    const randomIndex = Math.floor(Math.random() * storeData.quotes.length);
-    setRandomQuote(storeData.quotes[randomIndex]);
+  const getRandomQuoteFromStore = (storeData: QuoteStore, currentQuoteId?: string | null) => {
+    const randomQuoteItem = getRandomQuote(storeData, currentQuoteId);
+    setRandomQuote(randomQuoteItem);
   };
 
   const refreshRandomQuote = () => {
-    getRandomQuoteFromStore(store);
+    // Pass the current quote ID to avoid showing the same quote again
+    const currentId = randomQuote ? randomQuote.id : null;
+    getRandomQuoteFromStore(store, currentId);
   };
 
   const handleAddQuote = (quote: Omit<Quote, "id" | "createdAt">) => {
