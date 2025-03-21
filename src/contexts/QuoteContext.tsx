@@ -1,7 +1,7 @@
 "use client";
 
 import { Quote, QuoteStore } from "@/types";
-import { addQuote, deleteQuote, getInitialStore, saveToStorage, updateQuote } from "@/lib/storage";
+import { addQuote, deleteQuote, getInitialStore, updateQuote } from "@/lib/storage";
 import { createContext, useContext, ReactNode, useState, useEffect } from "react";
 
 interface QuoteContextType {
