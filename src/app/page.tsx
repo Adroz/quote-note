@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useQuotes } from "@/contexts/QuoteContext";
 import { QuoteCard } from "@/components/QuoteCard";
 import { AddQuoteForm } from "@/components/AddQuoteForm";
@@ -18,8 +18,8 @@ export default function Home() {
       refreshRandomQuote();
       isFirstRender.current = false;
     }
-    // No dependencies means this only runs once on mount
-  }, []);
+    // This effect depends on refreshRandomQuote
+  }, [refreshRandomQuote]);
 
   return (
     <main className="min-h-screen flex flex-col">
