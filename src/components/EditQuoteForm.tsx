@@ -128,13 +128,33 @@ export const EditQuoteForm = ({ quote, onClose, isOpen }: EditQuoteFormProps) =>
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
+  // Function to remove quotation marks from beginning and end of text
+  const removeQuotationMarks = (text: string): string => {
+    let trimmed = text.trim();
+    
+    // Remove leading quotation mark if present
+    if (trimmed.startsWith('"') || trimmed.startsWith("'")) {
+      trimmed = trimmed.substring(1);
+    }
+    
+    // Remove trailing quotation mark if present
+    if (trimmed.endsWith('"') || trimmed.endsWith("'")) {
+      trimmed = trimmed.substring(0, trimmed.length - 1);
+    }
+    
+    return trimmed.trim();
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!text.trim()) return;
 
+    // Process the text to remove quotation marks
+    const processedText = removeQuotationMarks(text);
+
     updateQuote(quote.id, {
-      text: text.trim(),
+      text: processedText,
       author: author.trim() || undefined,
       tags
     });

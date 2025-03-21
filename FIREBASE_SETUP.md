@@ -157,11 +157,39 @@ This guide will walk you through setting up a Firebase project for the QuoteNote
 4. Sign out and back in to verify that your data is saved to your account
 5. Visit your Firebase Hosting URL (e.g., https://your-project-id.web.app) to test the deployed site
 
+## Step 8: Set Up Custom Domain (Optional)
+
+If you want to use your own domain (like example.com or quotes.example.com) instead of the default Firebase hosting URL, follow these steps:
+
+### Using Cloudflare DNS:
+
+1. In the Firebase Console, go to Hosting and click "Add custom domain"
+2. Enter your domain (e.g., quotes.example.com) and click "Continue"
+3. In your Cloudflare dashboard for your domain:
+   - Delete any existing A records for the subdomain if they exist
+   - Add a CNAME record pointing to your Firebase app's URL:
+     - Name: quotes (or @ for root domain)
+     - Target: your-project-id.web.app
+   - Set the proxy status according to your preference
+4. Return to Firebase and verify your domain ownership
+5. Wait for the domain to be verified and the SSL certificate to be provisioned
+
+### Important: Update Authentication Settings
+
+After connecting your custom domain, you must add it to Firebase Authentication:
+
+1. In Firebase Console, go to Authentication → Settings → Authorized domains
+2. Click "Add domain" and add your custom domain (e.g., quotes.example.com)
+3. Save changes
+
+Without this step, Google authentication will fail with "auth/unauthorized-domain" errors when accessed from your custom domain.
+
 ## Troubleshooting
 
 - **Authentication errors**: Make sure you've properly enabled the authentication providers (Email/Password and Google).
 - **Firestore errors**: Check that your Firestore security rules allow reads and writes for authenticated users.
 - **CORS issues with Google authentication**: Check that your Firebase Hosting domain is added to the authorized domains in Firebase Authentication settings.
+- **Custom domain errors**: Ensure you've added the custom domain to the authorized domains list in the Authentication settings.
 - **Environment variables not loading**: Check that your `.env.local` file is in the correct location and formatted properly.
 - **Hosting issues**: Ensure your build output is correctly pointing to the 'build' directory and that you've updated the firebase.json file accordingly.
 

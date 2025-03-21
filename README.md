@@ -31,10 +31,11 @@ A simple, elegant web application for saving and discovering quotes.
 - Firebase Firestore
 - Firebase Authentication
 - Firebase Hosting
+- Cloudflare DNS
 
 ## Live Demo
 
-Check out the live demo: [QuoteNote App](https://quote-note-271f9.web.app/)
+Check out the live demo: [QuoteNote App](https://quotes.nikmoores.com/)
 
 ## Getting Started
 
