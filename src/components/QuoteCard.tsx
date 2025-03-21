@@ -24,7 +24,7 @@ export const QuoteCard = ({ quote }: QuoteCardProps) => {
     <>
       <div className="max-w-2xl w-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mx-auto relative group">
         <blockquote className="relative">
-          <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+          <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 leading-relaxed mb-4 whitespace-pre-wrap">
             &ldquo;{quote.text}&rdquo;
           </p>
           {quote.author && (
