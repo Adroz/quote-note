@@ -65,7 +65,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ### Authentication & Data Handling
 - **Seamless Migration**: Prompt to transfer local quotes to the cloud when signing in
-- **Smart Redirects**: Authenticated users are redirected from login/signup pages
+- **Smart Redirects**: Authenticated users are redirected from login/sign-up pages
 - **Privacy Protection**: Local storage is cleared on logout for better privacy
 - **Dual Storage**: Anonymous mode uses local storage, authenticated users get cloud storage
 

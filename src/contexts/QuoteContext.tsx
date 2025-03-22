@@ -14,12 +14,17 @@ interface QuoteContextType {
   refreshRandomQuote: () => void;
   setCurrentQuote: (id: string) => void;
   isLoading: boolean;
+  setForceQuotesInterface: (value: boolean) => void;
 }
 
 const QuoteContext = createContext<QuoteContextType | undefined>(undefined);
 
 export const QuoteProvider = ({ children }: { children: ReactNode }) => {
-  const [store, setStore] = useState<QuoteStore>({ quotes: [], tags: [] });
+  const [store, setStore] = useState<QuoteStore>({ 
+    quotes: [], 
+    tags: [],
+    forceQuotesInterface: false
+  });
   const [randomQuote, setRandomQuote] = useState<Quote | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -111,6 +116,12 @@ export const QuoteProvider = ({ children }: { children: ReactNode }) => {
       const updatedStore = await StorageManager.deleteQuote(store, id);
       setStore(updatedStore);
       
+      // If all quotes are deleted and user is not authenticated, reset interface
+      if (updatedStore.quotes.length === 0 && !currentUser) {
+        const resetStore = StorageManager.setForceQuotesInterface(updatedStore, false);
+        setStore(resetStore);
+      }
+      
       // If the deleted quote is the current random quote, get a new one
       if (randomQuote && randomQuote.id === id) {
         if (updatedStore.quotes.length > 0) {
@@ -124,6 +135,12 @@ export const QuoteProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Function to toggle force quotes interface mode
+  const setForceQuotesInterface = (value: boolean) => {
+    const updatedStore = StorageManager.setForceQuotesInterface(store, value);
+    setStore(updatedStore);
   };
 
   if (!isLoaded) {
@@ -140,7 +157,8 @@ export const QuoteProvider = ({ children }: { children: ReactNode }) => {
         deleteQuote: handleDeleteQuote,
         refreshRandomQuote,
         setCurrentQuote,
-        isLoading
+        isLoading,
+        setForceQuotesInterface
       }}
     >
       {children}

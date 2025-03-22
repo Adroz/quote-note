@@ -9,4 +9,5 @@ export interface Quote {
 export interface QuoteStore {
   quotes: Quote[];
   tags: string[];
+  forceQuotesInterface: boolean;
 } 

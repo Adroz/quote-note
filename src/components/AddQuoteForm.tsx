@@ -3,17 +3,32 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuotes } from "@/contexts/QuoteContext";
 
-export const AddQuoteForm = () => {
+interface AddQuoteFormProps {
+  initialOpen?: boolean;
+  onOpenChange?: (isOpen: boolean) => void;
+}
+
+export const AddQuoteForm = ({ initialOpen = false, onOpenChange }: AddQuoteFormProps) => {
   const { addQuote, store } = useQuotes();
   const [text, setText] = useState("");
   const [author, setAuthor] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(initialOpen);
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  // Effect to sync isOpen state with the initialOpen prop
+  useEffect(() => {
+    setIsOpen(initialOpen);
+  }, [initialOpen]);
+
+  // Effect to notify parent component when isOpen changes
+  useEffect(() => {
+    onOpenChange?.(isOpen);
+  }, [isOpen, onOpenChange]);
 
   // Count usage of each tag and sort suggestions by usage count, then alphabetically
   const tagSuggestions = store.tags

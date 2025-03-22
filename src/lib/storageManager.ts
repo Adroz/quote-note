@@ -51,6 +51,7 @@ export const addQuote = async (store: QuoteStore, quote: Omit<Quote, "id" | "cre
       if (newQuote) {
         // Also update local store for immediate rendering
         const updatedStore = {
+          ...store,
           quotes: [...store.quotes, newQuote],
           tags: [...new Set([...store.tags, ...quote.tags])]
         };
@@ -88,6 +89,7 @@ export const updateQuote = async (store: QuoteStore, id: string, quote: Omit<Quo
         updatedQuotes.forEach(q => q.tags.forEach(tag => allTags.add(tag)));
         
         return {
+          ...store,
           quotes: updatedQuotes,
           tags: Array.from(allTags)
         };
@@ -119,6 +121,7 @@ export const deleteQuote = async (store: QuoteStore, id: string): Promise<QuoteS
         updatedQuotes.forEach(q => q.tags.forEach(tag => allTags.add(tag)));
         
         return {
+          ...store,
           quotes: updatedQuotes,
           tags: Array.from(allTags)
         };
@@ -134,6 +137,9 @@ export const deleteQuote = async (store: QuoteStore, id: string): Promise<QuoteS
     return LocalStorage.deleteQuote(store, id);
   }
 };
+
+// Set force quotes interface
+export const setForceQuotesInterface = LocalStorage.setForceQuotesInterface;
 
 // Get a random quote
 export const getRandomQuote = async (store: QuoteStore, currentQuoteId?: string | null): Promise<Quote | null> => {

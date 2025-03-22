@@ -4,19 +4,24 @@ const STORAGE_KEY = "quote-note-data";
 
 export const getInitialStore = (): QuoteStore => {
   if (typeof window === "undefined") {
-    return { quotes: [], tags: [] };
+    return { quotes: [], tags: [], forceQuotesInterface: false };
   }
   
   try {
     const storedData = localStorage.getItem(STORAGE_KEY);
     if (storedData) {
-      return JSON.parse(storedData);
+      const parsedData = JSON.parse(storedData);
+      // Ensure the forceQuotesInterface property exists
+      return {
+        ...parsedData,
+        forceQuotesInterface: parsedData.forceQuotesInterface || false
+      };
     }
   } catch (error) {
     console.error("Error loading from local storage:", error);
   }
   
-  return { quotes: [], tags: [] };
+  return { quotes: [], tags: [], forceQuotesInterface: false };
 };
 
 export const saveToStorage = (store: QuoteStore) => {
@@ -39,6 +44,7 @@ export const addQuote = (store: QuoteStore, quote: Omit<Quote, "id" | "createdAt
   // Extract and add any new tags
   const newTags = quote.tags.filter(tag => !store.tags.includes(tag));
   const updatedStore = {
+    ...store,
     quotes: [...store.quotes, newQuote],
     tags: [...store.tags, ...newTags]
   };
@@ -90,6 +96,7 @@ export const updateQuote = (store: QuoteStore, id: string, updatedQuote: Omit<Qu
   // Extract and add any new tags
   const newTags = updatedQuote.tags.filter(tag => !store.tags.includes(tag));
   const updatedStore = {
+    ...store,
     quotes: updatedQuotes,
     tags: [...store.tags, ...newTags]
   };
@@ -101,18 +108,21 @@ export const updateQuote = (store: QuoteStore, id: string, updatedQuote: Omit<Qu
 export const deleteQuote = (store: QuoteStore, id: string): QuoteStore => {
   const updatedQuotes = store.quotes.filter(quote => quote.id !== id);
   
-  // Get all tags from the remaining quotes
-  const usedTags = new Set<string>();
+  // If no change, return original store
+  if (updatedQuotes.length === store.quotes.length) {
+    return store;
+  }
+  
+  // Re-analyze tags in use
+  const tagsInUse = new Set<string>();
   updatedQuotes.forEach(quote => {
-    quote.tags.forEach(tag => usedTags.add(tag));
+    quote.tags.forEach(tag => tagsInUse.add(tag));
   });
   
-  // Only keep tags that are still used in quotes
-  const updatedTags = store.tags.filter(tag => usedTags.has(tag));
-  
   const updatedStore = {
+    ...store,
     quotes: updatedQuotes,
-    tags: updatedTags
+    tags: Array.from(tagsInUse)
   };
   
   saveToStorage(updatedStore);
@@ -129,4 +139,14 @@ export const clearLocalStorage = (): void => {
   } catch (error) {
     console.error("Error clearing local storage:", error);
   }
+};
+
+export const setForceQuotesInterface = (store: QuoteStore, value: boolean): QuoteStore => {
+  const updatedStore = {
+    ...store,
+    forceQuotesInterface: value
+  };
+  
+  saveToStorage(updatedStore);
+  return updatedStore;
 }; 
