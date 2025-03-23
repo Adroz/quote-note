@@ -13,7 +13,6 @@ interface QuoteCardProps {
 
 export const QuoteCard = ({ quote, isShowcase = false }: QuoteCardProps) => {
   const { deleteQuote } = useQuotes();
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -34,7 +33,7 @@ export const QuoteCard = ({ quote, isShowcase = false }: QuoteCardProps) => {
   return (
     <div className={`quote-card bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-slate-700 ${isShowcase ? 'showcase-card' : ''}`}>
       <div className="mb-4">
-        <p className="text-lg text-gray-800 dark:text-white font-medium leading-relaxed">"{quote.text}"</p>
+        <p className="text-lg text-gray-800 dark:text-white font-medium leading-relaxed">&ldquo;{quote.text}&rdquo;</p>
         {quote.author && (
           <p className="mt-2 text-right text-gray-600 dark:text-gray-400">
             — {quote.author}

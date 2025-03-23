@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useQuotes } from "@/contexts/QuoteContext";
 import { QuoteCard } from "./QuoteCard";
 import { useSearchParams } from "next/navigation";
-import { Quote } from "@/types";
 
 interface QuoteListProps {
   isShowcase?: boolean;
@@ -12,50 +11,22 @@ interface QuoteListProps {
 
 export const QuoteList = ({ isShowcase = false }: QuoteListProps) => {
   const { store } = useQuotes();
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const searchParams = useSearchParams();
   
-  // Only check URL params if not in showcase mode
+  // Check for tag in URL query params when component mounts
   useEffect(() => {
-    if (!isShowcase) {
-      const tagParam = searchParams.get('tag');
-      if (tagParam) {
-        setSelectedTag(tagParam);
-      }
+    const tagParam = searchParams.get('tag');
+    if (tagParam) {
+      setSelectedTag(tagParam);
     }
-  }, [searchParams, isShowcase]);
-
-  // In showcase mode, use pre-defined quotes with shared "wisdom" tag
-  const showcaseQuotes = [
-    {
-      id: 'showcase-1',
-      text: "The future belongs to those who believe in the beauty of their dreams.",
-      author: "Eleanor Roosevelt",
-      tags: ["wisdom", "✨"],
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      userId: 'showcase-user'
-    },
-    {
-      id: 'showcase-2',
-      text: "Success is not final, failure is not fatal: It is the courage to continue that counts.",
-      author: "Winston Churchill",
-      tags: ["wisdom", "🏆"],
-      createdAt: Date.now() - 86400000, // 1 day ago
-      updatedAt: Date.now() - 86400000,
-      userId: 'showcase-user'
-    }
-  ];
+  }, [searchParams]);
   
-  // Initialize with "wisdom" tag selected for showcase mode
-  const [selectedTag, setSelectedTag] = useState<string | null>(isShowcase ? "wisdom" : null);
-  
-  const filteredQuotes = isShowcase
-    ? showcaseQuotes.filter(quote => selectedTag ? quote.tags.includes(selectedTag) : true)
-    : selectedTag 
-      ? store.quotes.filter(quote => quote.tags.includes(selectedTag))
-      : store.quotes;
-  
-  // Sort quotes by creation date (newest first)
+  const filteredQuotes = selectedTag 
+    ? store.quotes.filter(quote => quote.tags.includes(selectedTag))
+    : store.quotes;
+    
+  // Sort by newest first
   const sortedQuotes = [...filteredQuotes].sort((a, b) => b.createdAt - a.createdAt);
 
   // Tags to display in showcase mode
