@@ -4,6 +4,8 @@ export interface Quote {
   author?: string;
   tags: string[];
   createdAt: number;
+  updatedAt?: number;
+  userId?: string;
 }
 
 export interface QuoteStore {

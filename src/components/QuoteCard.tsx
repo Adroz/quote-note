@@ -8,53 +8,62 @@ import Link from "next/link";
 
 interface QuoteCardProps {
   quote: Quote;
+  isShowcase?: boolean;
 }
 
-export const QuoteCard = ({ quote }: QuoteCardProps) => {
+export const QuoteCard = ({ quote, isShowcase = false }: QuoteCardProps) => {
   const { deleteQuote } = useQuotes();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const handleDelete = () => {
-    deleteQuote(quote.id);
-    setIsDeleteConfirmOpen(false);
+  const handleEdit = () => {
+    setIsEditing(true);
   };
 
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this quote?")) {
+      deleteQuote(quote.id);
+    }
+  };
+
+  if (isEditing) {
+    return <EditQuoteForm quote={quote} onComplete={() => setIsEditing(false)} />;
+  }
+
   return (
-    <>
-      <div className="max-w-2xl w-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mx-auto relative group">
-        <blockquote className="relative">
-          <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 leading-relaxed mb-4 whitespace-pre-wrap">
-            &ldquo;{quote.text}&rdquo;
+    <div className={`quote-card bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-slate-700 ${isShowcase ? 'showcase-card' : ''}`}>
+      <div className="mb-4">
+        <p className="text-lg text-gray-800 dark:text-white font-medium leading-relaxed">"{quote.text}"</p>
+        {quote.author && (
+          <p className="mt-2 text-right text-gray-600 dark:text-gray-400">
+            — {quote.author}
           </p>
-          {quote.author && (
-            <footer className="text-right">
-              <p className="text-sm md:text-base font-semibold text-gray-600 dark:text-gray-400">
-                — {quote.author}
-              </p>
-            </footer>
-          )}
-        </blockquote>
-        
-        <div className="mt-4 flex flex-wrap items-center justify-between">
-          <div className="flex flex-wrap gap-2">
-            {quote.tags.length > 0 && quote.tags.map(tag => (
-              <Link 
-                key={tag}
-                href={`/all?tag=${encodeURIComponent(tag)}`}
+        )}
+      </div>
+      
+      <div className={`mt-4 flex flex-wrap items-center ${isShowcase ? 'justify-start' : 'justify-between'}`}>
+        <div className="flex flex-wrap gap-2">
+          {quote.tags.length > 0 && quote.tags.map(tag => (
+            <Link 
+              key={tag}
+              href={isShowcase ? "#" : `/all?tag=${encodeURIComponent(tag)}`}
+              onClick={isShowcase ? (e) => e.preventDefault() : undefined}
+            >
+              <span 
+                className="px-2 py-1 text-xs bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors cursor-pointer"
               >
-                <span 
-                  className="px-2 py-1 text-xs bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors cursor-pointer"
-                >
-                  {tag}
-                </span>
-              </Link>
-            ))}
-          </div>
-          
+                {tag}
+              </span>
+            </Link>
+          ))}
+        </div>
+        
+        {/* Only show edit/delete buttons in non-showcase mode */}
+        {!isShowcase && (
           <div className="flex gap-2 ml-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200 md:invisible md:group-hover:visible sm:opacity-100 sm:visible md:opacity-0">
             <button 
-              onClick={() => setIsEditModalOpen(true)}
+              onClick={handleEdit}
               className="text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400"
               aria-label="Edit quote"
             >
@@ -72,43 +81,41 @@ export const QuoteCard = ({ quote }: QuoteCardProps) => {
               </svg>
             </button>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Edit Modal */}
-      <EditQuoteForm 
-        quote={quote} 
-        isOpen={isEditModalOpen} 
-        onClose={() => setIsEditModalOpen(false)} 
-      />
-
-      {/* Delete Confirmation Dialog */}
-      {isDeleteConfirmOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-xl w-full max-w-md mx-4">
-            <h2 className="text-xl font-bold mb-2 text-gray-800 dark:text-white">Delete Quote</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Are you sure you want to delete this quote? This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setIsDeleteConfirmOpen(false)}
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-              >
-                Delete
-              </button>
+      {/* Only render modals if not in showcase mode */}
+      {!isShowcase && (
+        <>
+          {/* Delete Confirmation Dialog */}
+          {isDeleteConfirmOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-xl w-full max-w-md mx-4">
+                <h2 className="text-xl font-bold mb-2 text-gray-800 dark:text-white">Delete Quote</h2>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  Are you sure you want to delete this quote? This action cannot be undone.
+                </p>
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsDeleteConfirmOpen(false)}
+                    className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          )}
+        </>
       )}
-    </>
+    </div>
   );
 }; 

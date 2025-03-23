@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useQuotes } from "@/contexts/QuoteContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserProfile } from "@/components/UserProfile";
 import { QuoteCard } from "@/components/QuoteCard";
 import { AddQuoteForm } from "@/components/AddQuoteForm";
 import { useEffect, useRef, useState } from "react";
+import { DeviceFrame } from "@/components/DeviceFrame";
+import { QuoteShowcaseWithShuffle } from "@/components/QuoteShowcaseWithShuffle";
+import { QuoteList } from "@/components/QuoteList";
 
 export default function Home() {
   const { currentUser } = useAuth();
@@ -111,14 +113,9 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="md:w-1/2">
-                  <div className="relative w-full h-96 bg-gray-200 dark:bg-slate-700 rounded-lg shadow-lg overflow-hidden">
-                    <div className="absolute inset-0 flex items-center justify-center text-gray-500 dark:text-gray-400">
-                      {/* Placeholder for app screenshot */}
-                      <p className="text-center">
-                        App screenshot showing beautiful quote display
-                      </p>
-                    </div>
-                  </div>
+                  <DeviceFrame type="square">
+                    <QuoteShowcaseWithShuffle />
+                  </DeviceFrame>
                 </div>
               </div>
             </div>
@@ -189,14 +186,22 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="md:w-1/2">
-                  <div className="relative w-full h-64 bg-gray-200 dark:bg-slate-700 rounded-lg shadow-md overflow-hidden">
-                    <div className="absolute inset-0 flex items-center justify-center text-gray-500 dark:text-gray-400">
-                      {/* Placeholder for feature screenshot */}
-                      <p className="text-center">
-                        Screenshot of quote card design
-                      </p>
+                  <DeviceFrame type="square">
+                    <div className="showcase-mode w-full max-w-md">
+                      <QuoteCard 
+                        quote={{
+                          id: 'showcase-wisdom',
+                          text: "Almost everything will work again if you unplug it for a few minutes, including you.",
+                          author: "Anne Lamott",
+                          tags: ["wisdom"],
+                          createdAt: Date.now(),
+                          updatedAt: Date.now(),
+                          userId: 'showcase-user'
+                        }} 
+                        isShowcase={true} 
+                      />
                     </div>
-                  </div>
+                  </DeviceFrame>
                 </div>
               </div>
               
@@ -209,14 +214,9 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="md:w-1/2">
-                  <div className="relative w-full h-64 bg-gray-200 dark:bg-slate-700 rounded-lg shadow-md overflow-hidden">
-                    <div className="absolute inset-0 flex items-center justify-center text-gray-500 dark:text-gray-400">
-                      {/* Placeholder for feature screenshot */}
-                      <p className="text-center">
-                        Screenshot of tagging system
-                      </p>
-                    </div>
-                  </div>
+                  <DeviceFrame type="square">
+                    <QuoteList isShowcase={true} />
+                  </DeviceFrame>
                 </div>
               </div>
               
@@ -229,14 +229,9 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="md:w-1/2">
-                  <div className="relative w-full h-64 bg-gray-200 dark:bg-slate-700 rounded-lg shadow-md overflow-hidden">
-                    <div className="absolute inset-0 flex items-center justify-center text-gray-500 dark:text-gray-400">
-                      {/* Placeholder for feature screenshot */}
-                      <p className="text-center">
-                        Screenshot of cross-device sync
-                      </p>
-                    </div>
-                  </div>
+                  <DeviceFrame type="square">
+                    <AddQuoteForm isShowcase={true} />
+                  </DeviceFrame>
                 </div>
               </div>
             </div>
@@ -249,7 +244,7 @@ export default function Home() {
                 Start Building Your Collection Today
               </h2>
               <p className="text-xl mb-8 text-indigo-100">
-                It's free, simple, and ready for your favorite quotes
+                It&apos;s free, simple, and ready for your favorite quotes
               </p>
               <div className="space-y-4">
                 <Link 

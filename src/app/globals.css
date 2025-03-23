@@ -29,3 +29,69 @@ body {
 .font-playfair {
   font-family: 'Playfair Display', serif;
 }
+
+/* Device Frame Styles */
+.device-frame {
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  background: #f1f1f1;
+  padding: 8px;
+  position: relative;
+  margin: 2rem auto;
+  overflow: hidden;
+}
+
+.device-screen {
+  border-radius: 12px;
+  overflow: hidden;
+  background: white;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.transform-container {
+  transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
+  transform-origin: center center;
+  box-shadow: 10px 10px 20px rgba(0,0,0,0.05);
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+/* Showcase component styles */
+.showcase-mode {
+  pointer-events: auto;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Make quote cards in showcase mode non-interactive, while keeping buttons clickable */
+.showcase-mode .quote-card {
+  pointer-events: none;
+}
+
+.showcase-mode button {
+  pointer-events: auto !important;
+}
+
+/* Dark mode adjustments for device frames */
+@media (prefers-color-scheme: dark) {
+  .device-frame {
+    background: #2a2a2a;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  }
+  
+  .device-screen {
+    background: #1a1a1a;
+  }
+}

@@ -4,26 +4,62 @@ import { useState, useEffect } from "react";
 import { useQuotes } from "@/contexts/QuoteContext";
 import { QuoteCard } from "./QuoteCard";
 import { useSearchParams } from "next/navigation";
+import { Quote } from "@/types";
 
-export const QuoteList = () => {
+interface QuoteListProps {
+  isShowcase?: boolean;
+}
+
+export const QuoteList = ({ isShowcase = false }: QuoteListProps) => {
   const { store } = useQuotes();
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const searchParams = useSearchParams();
   
-  // Check for tag in URL query params when component mounts
+  // Only check URL params if not in showcase mode
   useEffect(() => {
-    const tagParam = searchParams.get('tag');
-    if (tagParam) {
-      setSelectedTag(tagParam);
+    if (!isShowcase) {
+      const tagParam = searchParams.get('tag');
+      if (tagParam) {
+        setSelectedTag(tagParam);
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, isShowcase]);
+
+  // In showcase mode, use pre-defined quotes with shared "wisdom" tag
+  const showcaseQuotes = [
+    {
+      id: 'showcase-1',
+      text: "The future belongs to those who believe in the beauty of their dreams.",
+      author: "Eleanor Roosevelt",
+      tags: ["wisdom", "✨"],
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      userId: 'showcase-user'
+    },
+    {
+      id: 'showcase-2',
+      text: "Success is not final, failure is not fatal: It is the courage to continue that counts.",
+      author: "Winston Churchill",
+      tags: ["wisdom", "🏆"],
+      createdAt: Date.now() - 86400000, // 1 day ago
+      updatedAt: Date.now() - 86400000,
+      userId: 'showcase-user'
+    }
+  ];
   
-  const filteredQuotes = selectedTag 
-    ? store.quotes.filter(quote => quote.tags.includes(selectedTag))
-    : store.quotes;
+  // Initialize with "wisdom" tag selected for showcase mode
+  const [selectedTag, setSelectedTag] = useState<string | null>(isShowcase ? "wisdom" : null);
+  
+  const filteredQuotes = isShowcase
+    ? showcaseQuotes.filter(quote => selectedTag ? quote.tags.includes(selectedTag) : true)
+    : selectedTag 
+      ? store.quotes.filter(quote => quote.tags.includes(selectedTag))
+      : store.quotes;
   
   // Sort quotes by creation date (newest first)
   const sortedQuotes = [...filteredQuotes].sort((a, b) => b.createdAt - a.createdAt);
+
+  // Tags to display in showcase mode
+  const showcaseTags = ["wisdom", "✨", "🏆"];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -31,7 +67,7 @@ export const QuoteList = () => {
         {selectedTag ? `Quotes tagged with "${selectedTag}"` : "All Quotes"}
       </h1>
       
-      {store.tags.length > 0 && (
+      {((isShowcase && showcaseTags.length > 0) || (!isShowcase && store.tags.length > 0)) && (
         <div className="mb-6">
           <h2 className="text-sm uppercase font-semibold mb-2 text-gray-600 dark:text-gray-400">Filter by tag:</h2>
           <div className="flex flex-wrap gap-2">
@@ -45,26 +81,41 @@ export const QuoteList = () => {
             >
               All
             </button>
-            {store.tags.map(tag => (
-              <button
-                key={tag}
-                onClick={() => setSelectedTag(tag)}
-                className={`px-3 py-1 text-sm rounded-full transition-colors ${
-                  selectedTag === tag 
-                    ? 'bg-indigo-600 text-white' 
-                    : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
-                }`}
-              >
-                {tag}
-              </button>
-            ))}
+            {isShowcase 
+              ? showcaseTags.map(tag => (
+                <button
+                  key={tag}
+                  onClick={() => setSelectedTag(tag)}
+                  className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                    selectedTag === tag 
+                      ? 'bg-indigo-600 text-white' 
+                      : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))
+              : store.tags.map(tag => (
+                <button
+                  key={tag}
+                  onClick={() => setSelectedTag(tag)}
+                  className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                    selectedTag === tag 
+                      ? 'bg-indigo-600 text-white' 
+                      : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))
+            }
           </div>
         </div>
       )}
       
       {sortedQuotes.length === 0 ? (
         <div className="text-center py-10 text-gray-500 dark:text-gray-400">
-          {store.quotes.length === 0 ? (
+          {(isShowcase || store.quotes.length === 0) ? (
             <p>No quotes yet. Add your first one!</p>
           ) : (
             <p>No quotes found with the selected tag.</p>
@@ -73,7 +124,7 @@ export const QuoteList = () => {
       ) : (
         <div className="space-y-6">
           {sortedQuotes.map(quote => (
-            <QuoteCard key={quote.id} quote={quote} />
+            <QuoteCard key={quote.id} quote={quote} isShowcase={isShowcase} />
           ))}
         </div>
       )}

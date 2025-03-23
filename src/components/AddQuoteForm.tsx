@@ -6,15 +6,16 @@ import { useQuotes } from "@/contexts/QuoteContext";
 interface AddQuoteFormProps {
   initialOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
+  isShowcase?: boolean;
 }
 
-export const AddQuoteForm = ({ initialOpen = false, onOpenChange }: AddQuoteFormProps) => {
+export const AddQuoteForm = ({ initialOpen = false, onOpenChange, isShowcase = false }: AddQuoteFormProps) => {
   const { addQuote, store } = useQuotes();
-  const [text, setText] = useState("");
-  const [author, setAuthor] = useState("");
+  const [text, setText] = useState(isShowcase ? "The best preparation for tomorrow is doing your best today." : "");
+  const [author, setAuthor] = useState(isShowcase ? "H. Jackson Brown Jr." : "");
   const [tagInput, setTagInput] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
-  const [isOpen, setIsOpen] = useState(initialOpen);
+  const [tags, setTags] = useState<string[]>(isShowcase ? ["inspiration", "🌟"] : []);
+  const [isOpen, setIsOpen] = useState(initialOpen || isShowcase);
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -22,13 +23,17 @@ export const AddQuoteForm = ({ initialOpen = false, onOpenChange }: AddQuoteForm
 
   // Effect to sync isOpen state with the initialOpen prop
   useEffect(() => {
-    setIsOpen(initialOpen);
-  }, [initialOpen]);
+    if (!isShowcase) {
+      setIsOpen(initialOpen);
+    }
+  }, [initialOpen, isShowcase]);
 
   // Effect to notify parent component when isOpen changes
   useEffect(() => {
-    onOpenChange?.(isOpen);
-  }, [isOpen, onOpenChange]);
+    if (!isShowcase) {
+      onOpenChange?.(isOpen);
+    }
+  }, [isOpen, onOpenChange, isShowcase]);
 
   // Count usage of each tag and sort suggestions by usage count, then alphabetically
   const tagSuggestions = store.tags
@@ -150,6 +155,12 @@ export const AddQuoteForm = ({ initialOpen = false, onOpenChange }: AddQuoteForm
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Don't actually submit in showcase mode
+    if (isShowcase) {
+      setIsOpen(false);
+      return;
+    }
+    
     if (!text.trim()) return;
 
     // Process the text to remove quotation marks
@@ -167,6 +178,101 @@ export const AddQuoteForm = ({ initialOpen = false, onOpenChange }: AddQuoteForm
     setTags([]);
     setIsOpen(false);
   };
+
+  // Don't render the floating add button in showcase mode
+  if (isShowcase) {
+    return (
+      <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-xl w-full max-w-md mx-auto">
+        <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Add a new quote</h2>
+        <form onSubmit={(e) => e.preventDefault()}>
+          <div className="mb-4">
+            <label htmlFor="quote-text" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Quote text (required)
+            </label>
+            <textarea
+              id="quote-text"
+              value={text}
+              readOnly={isShowcase}
+              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+              rows={4}
+            />
+          </div>
+          
+          <div className="mb-4">
+            <label htmlFor="quote-author" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Author (optional)
+            </label>
+            <input
+              type="text"
+              id="quote-author"
+              value={author}
+              readOnly={isShowcase}
+              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="quote-tags" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Tags
+            </label>
+            <div className="flex relative">
+              <input
+                ref={inputRef}
+                type="text"
+                id="quote-tags"
+                placeholder="Add a tag"
+                readOnly={isShowcase}
+                className="flex-1 p-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+              />
+              <button
+                type="button"
+                className="bg-indigo-600 text-white px-3 py-2 rounded-r-md hover:bg-indigo-700"
+              >
+                Add
+              </button>
+            </div>
+            
+            <div className="mt-2 flex flex-wrap gap-2">
+              {tags.map(tag => (
+                <span 
+                  key={tag} 
+                  className="px-2 py-1 text-xs bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-full flex items-center"
+                >
+                  {tag}
+                  {!isShowcase && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveTag(tag)}
+                      className="ml-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 mt-6">
+            <button
+              type="button"
+              className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            >
+              Save Quote
+            </button>
+          </div>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <>
