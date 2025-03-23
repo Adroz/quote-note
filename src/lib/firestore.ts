@@ -44,14 +44,14 @@ export const getFirestoreStore = async (): Promise<QuoteStore> => {
   try {
     if (!isFirebaseInitialized()) {
       console.warn('Firebase not initialized, returning empty store');
-      return { quotes: [], tags: [] };
+      return { quotes: [], tags: [], forceQuotesInterface: false };
     }
     
     const userId = getCurrentUserId();
     
     if (!userId) {
       console.warn('No authenticated user, returning empty store');
-      return { quotes: [], tags: [] };
+      return { quotes: [], tags: [], forceQuotesInterface: false };
     }
     
     // Get quotes for the current user
@@ -71,10 +71,10 @@ export const getFirestoreStore = async (): Promise<QuoteStore> => {
     });
     const tags = Array.from(tagsSet);
     
-    return { quotes, tags };
+    return { quotes, tags, forceQuotesInterface: false };
   } catch (error) {
     console.error("Error loading from Firestore:", error);
-    return { quotes: [], tags: [] };
+    return { quotes: [], tags: [], forceQuotesInterface: false };
   }
 };
 
