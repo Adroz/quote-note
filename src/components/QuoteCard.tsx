@@ -9,15 +9,26 @@ import Link from "next/link";
 interface QuoteCardProps {
   quote: Quote;
   isShowcase?: boolean;
+  onEditStateChange?: (isEditing: boolean) => void;
 }
 
-export const QuoteCard = ({ quote, isShowcase = false }: QuoteCardProps) => {
+export const QuoteCard = ({ quote, isShowcase = false, onEditStateChange }: QuoteCardProps) => {
   const { deleteQuote } = useQuotes();
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   const handleEdit = () => {
     setIsEditing(true);
+    if (onEditStateChange) {
+      onEditStateChange(true);
+    }
+  };
+
+  const handleEditComplete = () => {
+    setIsEditing(false);
+    if (onEditStateChange) {
+      onEditStateChange(false);
+    }
   };
 
   const handleDelete = () => {
@@ -27,13 +38,13 @@ export const QuoteCard = ({ quote, isShowcase = false }: QuoteCardProps) => {
   };
 
   if (isEditing) {
-    return <EditQuoteForm quote={quote} onComplete={() => setIsEditing(false)} />;
+    return <EditQuoteForm quote={quote} onComplete={handleEditComplete} />;
   }
 
   return (
-    <div className={`quote-card bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-slate-700 ${isShowcase ? 'showcase-card' : ''}`}>
+    <div className={`quote-card group bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-slate-700 ${isShowcase ? 'showcase-card' : ''}`}>
       <div className="mb-4">
-        <p className="text-lg text-gray-800 dark:text-white font-medium leading-relaxed">&ldquo;{quote.text}&rdquo;</p>
+        <p className="text-lg text-gray-800 dark:text-white font-medium leading-relaxed whitespace-pre-wrap">&ldquo;{quote.text}&rdquo;</p>
         {quote.author && (
           <p className="mt-2 text-right text-gray-600 dark:text-gray-400">
             — {quote.author}

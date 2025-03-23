@@ -18,6 +18,8 @@ export default function Home() {
   const isFirstRender = useRef(true);
   // State to control the quote form visibility
   const [showQuoteForm, setShowQuoteForm] = useState(false);
+  // Track if a quote is being edited
+  const [isEditingQuote, setIsEditingQuote] = useState(false);
 
   // Only refresh the quote on actual page refresh, not on every render
   useEffect(() => {
@@ -275,13 +277,18 @@ export default function Home() {
               </div>
             ) : randomQuote ? (
               <>
-                <QuoteCard quote={randomQuote} />
-                <button
-                  onClick={refreshRandomQuote}
-                  className="mt-8 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-                >
-                  Show Another Quote
-                </button>
+                <QuoteCard 
+                  quote={randomQuote} 
+                  onEditStateChange={setIsEditingQuote}
+                />
+                {!isEditingQuote && (
+                  <button
+                    onClick={refreshRandomQuote}
+                    className="mt-8 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                  >
+                    Show Another Quote
+                  </button>
+                )}
               </>
             ) : (
               <div className="text-center max-w-md">
@@ -291,7 +298,7 @@ export default function Home() {
                 </p>
               </div>
             )}
-    </div>
+          </div>
 
           <AddQuoteForm initialOpen={showQuoteForm} onOpenChange={handleQuoteFormOpenChange} />
         </>
