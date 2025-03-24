@@ -11,35 +11,71 @@ interface QuoteListProps {
 
 export const QuoteList = ({ isShowcase = false }: QuoteListProps) => {
   const { store } = useQuotes();
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [selectedTag, setSelectedTag] = useState<string | null>(isShowcase ? "wisdom" : null);
   const searchParams = useSearchParams();
   
-  // Check for tag in URL query params when component mounts
+  // Check for tag in URL query params when component mounts, but only if not in showcase mode
   useEffect(() => {
-    const tagParam = searchParams.get('tag');
-    if (tagParam) {
-      setSelectedTag(tagParam);
+    if (!isShowcase) {
+      const tagParam = searchParams.get('tag');
+      if (tagParam) {
+        setSelectedTag(tagParam);
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, isShowcase]);
+  
+  // Sample quotes for showcase mode
+  const showcaseQuotes = [
+    {
+      id: 'showcase-1',
+      text: "The future belongs to those who believe in the beauty of their dreams.",
+      author: "Eleanor Roosevelt",
+      tags: ["inspiration"],
+      createdAt: Date.now() - 86400000 * 3,
+      updatedAt: Date.now() - 86400000 * 3,
+      userId: 'showcase-user'
+    },
+    {
+      id: 'showcase-2',
+      text: "Life is 10% what happens to us and 90% how we react to it.",
+      author: "Charles R. Swindoll",
+      tags: ["wisdom", "life"],
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      userId: 'showcase-user'
+    },
+    {
+      id: 'showcase-3',
+      text: "The only limit to our realization of tomorrow is our doubts of today.",
+      author: "Franklin D. Roosevelt",
+      tags: ["wisdom", "🏆"],
+      createdAt: Date.now() - 86400000 * 2,
+      updatedAt: Date.now() - 86400000 * 2,
+      userId: 'showcase-user'
+    },
+  ];
+  
+  // Use showcase quotes or real quotes based on isShowcase prop
+  const quotesToUse = isShowcase ? showcaseQuotes : store.quotes;
   
   const filteredQuotes = selectedTag 
-    ? store.quotes.filter(quote => quote.tags.includes(selectedTag))
-    : store.quotes;
+    ? quotesToUse.filter(quote => quote.tags.includes(selectedTag))
+    : quotesToUse;
     
   // Sort by newest first
   const sortedQuotes = [...filteredQuotes].sort((a, b) => b.createdAt - a.createdAt);
 
   // Tags to display in showcase mode
-  const showcaseTags = ["wisdom", "✨", "🏆"];
+  const showcaseTags = ["wisdom", "inspiration", "🏆", "life"];
 
   return (
-    <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
+    <div className={`container mx-auto px-3 sm:px-4 py-6 sm:py-8 ${isShowcase ? 'h-full flex flex-col items-start' : ''}`}>
       <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center text-gray-800 dark:text-white">
         {selectedTag ? `Quotes tagged with "${selectedTag}"` : "All Quotes"}
       </h1>
       
       {((isShowcase && showcaseTags.length > 0) || (!isShowcase && store.tags.length > 0)) && (
-        <div className="mb-4 sm:mb-6">
+        <div className="mb-4 sm:mb-6 w-full">
           <h2 className="text-sm uppercase font-semibold mb-2 text-gray-600 dark:text-gray-400">Filter by tag:</h2>
           <div className="flex flex-wrap gap-1 sm:gap-2">
             <button
