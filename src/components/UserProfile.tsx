@@ -51,73 +51,65 @@ export const UserProfile = () => {
     };
   }, []);
 
-  if (!currentUser) {
-    return (
-      <div className="flex flex-col items-end">
-        <div className="flex space-x-4 items-center">
+  return (
+    <div className="relative" ref={dropdownRef}>
+      {currentUser ? (
+        <>
+          <button
+            onClick={toggleDropdown}
+            className="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 focus:outline-none"
+            aria-expanded={isOpen}
+            aria-haspopup="true"
+          >
+            <span className="text-sm sm:text-base hidden xs:inline-block">
+              {currentUser.email?.split('@')[0] || 'User'}
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {isOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-md shadow-lg z-10 border border-gray-200 dark:border-slate-700">
+              <div className="py-1 px-3 pt-2 border-b border-gray-200 dark:border-slate-700">
+                <p className="text-sm text-gray-700 dark:text-gray-300 overflow-hidden overflow-ellipsis">
+                  {currentUser.email}
+                </p>
+              </div>
+              <div className="py-1">
+                <button
+                  onClick={handleSignOut}
+                  disabled={loading}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700"
+                >
+                  {loading ? 'Signing out...' : 'Sign out'}
+                </button>
+              </div>
+              {error && (
+                <div className="py-1 px-4 text-xs text-red-600 dark:text-red-400">
+                  {error}
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="flex items-center space-x-2 sm:space-x-3">
           <Link 
             href="/login" 
-            className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500"
+            className="px-2 sm:px-3 py-1 text-xs sm:text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
           >
-            Sign In
+            Log in
           </Link>
           <Link 
             href="/signup" 
-            className="text-sm px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
           >
-            Sign Up
+            Sign up
           </Link>
-        </div>
-        <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">
-          Sign in to backup to cloud
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <button 
-        onClick={toggleDropdown}
-        className="flex items-center text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 focus:outline-none"
-      >
-        <span className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-sm font-medium text-indigo-600 dark:text-indigo-400 mr-2">
-          {currentUser.email?.charAt(0).toUpperCase() || 'U'}
-        </span>
-        <span className="text-sm truncate max-w-[120px]">
-          {currentUser.email}
-        </span>
-        <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-      
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-md shadow-lg py-1 z-10">
-          <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-            Signed in as<br />
-            <span className="font-medium text-gray-700 dark:text-gray-300">
-              {currentUser.email}
-            </span>
-          </div>
-          
-          <div className="px-4 py-2 text-xs text-green-600 dark:text-green-400 border-b border-gray-200 dark:border-gray-700">
-            Using cloud storage
-          </div>
-          
-          {error && (
-            <div className="px-4 py-2 text-xs text-red-500">
-              {error}
-            </div>
-          )}
-          
-          <button
-            onClick={handleSignOut}
-            disabled={loading}
-            className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-50"
-          >
-            {loading ? 'Signing out...' : 'Sign Out'}
-          </button>
         </div>
       )}
     </div>

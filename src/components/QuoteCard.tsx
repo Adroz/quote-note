@@ -42,18 +42,18 @@ export const QuoteCard = ({ quote, isShowcase = false, onEditStateChange }: Quot
   }
 
   return (
-    <div className={`quote-card group bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-slate-700 ${isShowcase ? 'showcase-card' : ''}`}>
+    <div className={`quote-card group bg-white dark:bg-slate-800 rounded-lg shadow-md p-5 sm:p-6 border border-gray-200 dark:border-slate-700 w-full max-w-3xl mx-auto ${isShowcase ? 'showcase-card' : ''}`}>
       <div className="mb-4">
-        <p className="text-lg text-gray-800 dark:text-white font-medium leading-relaxed whitespace-pre-wrap">&ldquo;{quote.text}&rdquo;</p>
+        <p className="text-base sm:text-lg text-gray-800 dark:text-white font-medium leading-relaxed whitespace-pre-wrap">&ldquo;{quote.text}&rdquo;</p>
         {quote.author && (
-          <p className="mt-2 text-right text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-right text-sm sm:text-base text-gray-600 dark:text-gray-400">
             — {quote.author}
           </p>
         )}
       </div>
       
       <div className={`mt-4 flex flex-wrap items-center ${isShowcase ? 'justify-start' : 'justify-between'}`}>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1 sm:gap-2">
           {quote.tags.length > 0 && quote.tags.map(tag => (
             <Link 
               key={tag}
@@ -71,7 +71,7 @@ export const QuoteCard = ({ quote, isShowcase = false, onEditStateChange }: Quot
         
         {/* Only show edit/delete buttons in non-showcase mode */}
         {!isShowcase && (
-          <div className="flex gap-2 ml-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200 md:invisible md:group-hover:visible sm:opacity-100 sm:visible md:opacity-0">
+          <div className="flex gap-2 ml-2 opacity-100 visible sm:opacity-0 sm:invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200 sm:invisible sm:group-hover:visible">
             <button 
               onClick={handleEdit}
               className="text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400"
@@ -99,8 +99,8 @@ export const QuoteCard = ({ quote, isShowcase = false, onEditStateChange }: Quot
         <>
           {/* Delete Confirmation Dialog */}
           {isDeleteConfirmOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-xl w-full max-w-md mx-4">
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-lg shadow-xl w-full max-w-md">
                 <h2 className="text-xl font-bold mb-2 text-gray-800 dark:text-white">Delete Quote</h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-6">
                   Are you sure you want to delete this quote? This action cannot be undone.
@@ -109,14 +109,14 @@ export const QuoteCard = ({ quote, isShowcase = false, onEditStateChange }: Quot
                   <button
                     type="button"
                     onClick={() => setIsDeleteConfirmOpen(false)}
-                    className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700"
+                    className="px-3 py-2 sm:px-4 sm:py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={handleDelete}
-                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                    className="px-3 py-2 sm:px-4 sm:py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
                   >
                     Delete
                   </button>

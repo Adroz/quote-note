@@ -61,18 +61,18 @@ export default function Home() {
 
   return (
     <main className="min-h-screen flex flex-col">
-      <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 py-4">
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
+      <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 py-3 sm:py-4">
+        <div className="container mx-auto px-3 sm:px-4 flex justify-between items-center">
+          <h1 className="text-lg sm:text-xl font-bold text-indigo-600 dark:text-indigo-400">
             QuoteNote
           </h1>
           <div className="flex items-center">
-            <nav className="flex items-center space-x-4">
+            <nav className="flex items-center space-x-2 sm:space-x-4">
               {/* Only show View All Quotes when there are quotes or the user is logged in */}
               {(hasQuotes || currentUser) && (
                 <Link 
                   href="/all" 
-                  className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
+                  className="text-sm sm:text-base text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
                 >
                   View All Quotes
                 </Link>
@@ -270,10 +270,10 @@ export default function Home() {
         </>
       ) : (
         <>
-          <div className="flex-1 flex flex-col items-center justify-center p-4">
+          <div className="flex-1 flex flex-col items-center justify-center p-3 sm:p-4 w-full">
             {isLoading ? (
               <div className="flex items-center justify-center h-40">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+                <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-t-2 border-b-2 border-indigo-500"></div>
               </div>
             ) : randomQuote ? (
               <>
@@ -284,16 +284,16 @@ export default function Home() {
                 {!isEditingQuote && (
                   <button
                     onClick={refreshRandomQuote}
-                    className="mt-8 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                    className="mt-6 sm:mt-8 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
                   >
                     Show Another Quote
                   </button>
                 )}
               </>
             ) : (
-              <div className="text-center max-w-md">
-                <h2 className="text-2xl font-bold mb-2 text-gray-800 dark:text-white">Welcome to QuoteNote!</h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-8">
+              <div className="text-center max-w-md px-4">
+                <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gray-800 dark:text-white">Welcome to QuoteNote!</h2>
+                <p className="text-gray-600 dark:text-gray-400 mb-6 sm:mb-8">
                   Add your first quote to get started.
                 </p>
               </div>

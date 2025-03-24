@@ -33,18 +33,18 @@ export const QuoteList = ({ isShowcase = false }: QuoteListProps) => {
   const showcaseTags = ["wisdom", "✨", "🏆"];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-white">
+    <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center text-gray-800 dark:text-white">
         {selectedTag ? `Quotes tagged with "${selectedTag}"` : "All Quotes"}
       </h1>
       
       {((isShowcase && showcaseTags.length > 0) || (!isShowcase && store.tags.length > 0)) && (
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <h2 className="text-sm uppercase font-semibold mb-2 text-gray-600 dark:text-gray-400">Filter by tag:</h2>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1 sm:gap-2">
             <button
               onClick={() => setSelectedTag(null)}
-              className={`px-3 py-1 text-sm rounded-full transition-colors ${
+              className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-full transition-colors ${
                 selectedTag === null 
                   ? 'bg-indigo-600 text-white' 
                   : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
@@ -52,53 +52,57 @@ export const QuoteList = ({ isShowcase = false }: QuoteListProps) => {
             >
               All
             </button>
-            {isShowcase 
-              ? showcaseTags.map(tag => (
-                <button
-                  key={tag}
-                  onClick={() => setSelectedTag(tag)}
-                  className={`px-3 py-1 text-sm rounded-full transition-colors ${
-                    selectedTag === tag 
-                      ? 'bg-indigo-600 text-white' 
-                      : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
-                  }`}
-                >
-                  {tag}
-                </button>
-              ))
-              : store.tags.map(tag => (
-                <button
-                  key={tag}
-                  onClick={() => setSelectedTag(tag)}
-                  className={`px-3 py-1 text-sm rounded-full transition-colors ${
-                    selectedTag === tag 
-                      ? 'bg-indigo-600 text-white' 
-                      : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
-                  }`}
-                >
-                  {tag}
-                </button>
-              ))
-            }
+            
+            {isShowcase ? (
+              <>
+                {showcaseTags.map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => setSelectedTag(tag)}
+                    className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-full transition-colors ${
+                      selectedTag === tag 
+                        ? 'bg-indigo-600 text-white' 
+                        : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </>
+            ) : (
+              <>
+                {store.tags.map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => setSelectedTag(tag)}
+                    className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-full transition-colors ${
+                      selectedTag === tag 
+                        ? 'bg-indigo-600 text-white' 
+                        : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </>
+            )}
           </div>
         </div>
       )}
       
-      {sortedQuotes.length === 0 ? (
-        <div className="text-center py-10 text-gray-500 dark:text-gray-400">
-          {(isShowcase || store.quotes.length === 0) ? (
-            <p>No quotes yet. Add your first one!</p>
-          ) : (
-            <p>No quotes found with the selected tag.</p>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {sortedQuotes.map(quote => (
+      <div className="space-y-4 sm:space-y-6">
+        {sortedQuotes.length > 0 ? (
+          sortedQuotes.map(quote => (
             <QuoteCard key={quote.id} quote={quote} isShowcase={isShowcase} />
-          ))}
-        </div>
-      )}
+          ))
+        ) : (
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-5 sm:p-6 text-center">
+            <p className="text-gray-600 dark:text-gray-400">
+              {selectedTag ? `No quotes found with the tag "${selectedTag}".` : "No quotes found."}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }; 
