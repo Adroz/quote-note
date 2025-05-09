@@ -20,13 +20,17 @@ let auth: Auth;
 let googleProvider: GoogleAuthProvider;
 
 // Check if all required config values are present
-const isConfigValid = 
-  firebaseConfig.apiKey && 
-  firebaseConfig.authDomain && 
-  firebaseConfig.projectId;
+const isConfigValid =
+  firebaseConfig.apiKey &&
+  firebaseConfig.authDomain &&
+  firebaseConfig.projectId &&
+  firebaseConfig.storageBucket &&
+  firebaseConfig.messagingSenderId &&
+  firebaseConfig.appId &&
+  firebaseConfig.measurementId;
 
 if (!isConfigValid) {
-  console.warn('Firebase config is incomplete. Check your .env.local file with the required Firebase configuration values.');
+  console.warn('Firebase config is incomplete. Ensure all NEXT_PUBLIC_FIREBASE_* environment variables are set.');
 }
 
 try {
