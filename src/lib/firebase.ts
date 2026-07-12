@@ -13,13 +13,10 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-let app: FirebaseApp;
-let db: Firestore;
-let auth: Auth;
-let googleProvider: GoogleAuthProvider;
+let db: Firestore | null = null;
+let auth: Auth | null = null;
+let googleProvider: GoogleAuthProvider | null = null;
 
-// Check if all required config values are present
 const isConfigValid =
   firebaseConfig.apiKey &&
   firebaseConfig.authDomain &&
@@ -31,24 +28,15 @@ const isConfigValid =
 
 if (!isConfigValid) {
   console.warn('Firebase config is incomplete. Ensure all NEXT_PUBLIC_FIREBASE_* environment variables are set.');
-}
-
-try {
-  // Check if Firebase has already been initialized
-  if (getApps().length === 0) {
-    app = initializeApp(firebaseConfig);
-    console.log('Firebase initialized successfully');
-  } else {
-    app = getApps()[0];
+} else {
+  try {
+    const app: FirebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+    db = getFirestore(app);
+    auth = getAuth(app);
+    googleProvider = new GoogleAuthProvider();
+  } catch (error) {
+    console.error('Firebase initialization error:', error);
   }
-  
-  db = getFirestore(app);
-  auth = getAuth(app);
-  googleProvider = new GoogleAuthProvider();
-  
-} catch (error) {
-  console.error("Firebase initialization error:", error);
-  throw new Error("Failed to initialize Firebase. Please check your configuration.");
 }
 
-export { db, auth, googleProvider }; 
+export { db, auth, googleProvider };
